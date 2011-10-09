@@ -21,7 +21,6 @@ class CMpdClient : public CThread
     ~CMpdClient();
 
     virtual void Process();
-    void         ProcessCommands();
     void         VolumeUp();
     void         VolumeDown();
 
