@@ -1,4 +1,4 @@
-AC_INIT([cec-client], 1.0)
+AC_INIT([skipbutton], 1.0)
 
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
