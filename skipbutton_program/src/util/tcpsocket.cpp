@@ -189,7 +189,7 @@ int CTcpSocket::WaitForSocket(bool write, std::string timeoutstr)
 
   //set the timeout
   struct timeval timeout;
-  if (m_usectimeout > 0)
+  if (m_usectimeout >= 0)
   {
     timeout.tv_sec = m_usectimeout / 1000000;
     timeout.tv_usec = m_usectimeout % 1000000;

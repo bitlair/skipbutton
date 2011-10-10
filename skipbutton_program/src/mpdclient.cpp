@@ -11,6 +11,9 @@ using namespace std;
 
 CMpdClient::CMpdClient()
 {
+  //TODO: make this configurable
+  m_port = 6600;
+  m_address = "192.168.88.10";
 }
 
 CMpdClient::~CMpdClient()
@@ -19,81 +22,117 @@ CMpdClient::~CMpdClient()
 
 void CMpdClient::Process()
 {
-  CLock lock(m_condition);
-
-  const char* address = "192.168.88.10";
-  int port = 6600;
-
-  while(!m_stop)
+  while (!m_stop)
   {
-    if (m_commands.empty())
+    if (!m_socket.IsOpen())
     {
-      if (m_socket.IsOpen())
-        m_condition.Wait(10000000);
-      else
-        m_condition.Wait();
+      if (!OpenSocket())
+      {
+        CLock lock(m_condition);
+        m_commands.clear();
+        continue;
+      }
     }
 
-    if (!m_commands.empty())
+    CLock lock(m_condition);
+    if (m_commands.empty())
     {
-      if (!m_socket.IsOpen())
+      if (!m_condition.Wait(10000000))
       {
-        int returnv = m_socket.Open(address, port, 10000000);
-        if (returnv != SUCCESS)
+        lock.Leave();
+        if (!Ping())
         {
-          lock.Leave();
-          printf("Error connecting to %s:%i %s\n", address, port, m_socket.GetError().c_str());
-          if (returnv != TIMEOUT)
-            USleep(10000000, &m_stop);
-
           m_socket.Close();
-
-          lock.Enter();
-          m_commands.clear();
           continue;
         }
-        else
-        {
-          printf("Connected to %s:%i\n", address, port);
-        }
+        lock.Enter();
+      }
+    }
+
+    bool failed = false;
+    while (!m_commands.empty())
+    {
+      ECMD cmd = m_commands.front();
+      m_commands.pop_front();
+      lock.Leave();
+
+      int volume;
+      if (!GetVolume(volume))
+      {
+        failed = true;
+        break;
       }
 
-      while (!m_commands.empty())
+      int newvolume = volume;
+      if (cmd == CMD_VOLUP)
+        newvolume += 5;
+      else if (cmd == CMD_VOLDOWN)
+        newvolume -= 5;
+
+      newvolume = Clamp(newvolume, 0, 100);
+      printf("Setting volume from %i to %i\n", volume, newvolume);
+
+      if (!SetVolume(newvolume))
       {
-        ECMD cmd = m_commands.front();
-        m_commands.pop_front();
-        lock.Leave();
-
-        int volume;
-        if (!GetVolume(volume))
-          break;
-
-        if (cmd == CMD_VOLUP)
-          volume += 5;
-        else if (cmd == CMD_VOLDOWN)
-          volume -= 5;
-
-        printf("Setting volume to %i\n", volume);
-
-        if (!SetVolume(Clamp(volume, 0, 100)))
-          break;
-
-        lock.Enter();
+        failed = true;
+        break;
       }
 
       lock.Enter();
-      if (!m_commands.empty())
-      {
-        m_commands.clear();
-        m_socket.Close();
-      }
     }
-    else
+
+    if (failed)
     {
-      printf("Closing connection to %s:%i\n", address, port);
       m_socket.Close();
+      lock.Enter();
+      m_commands.clear();
     }
   }
+}
+
+bool CMpdClient::OpenSocket()
+{
+  m_socket.Close();
+  int returnv = m_socket.Open(m_address, m_port, 10000000);
+
+  if (returnv != SUCCESS)
+  {
+    printf("Error connecting to %s:%i, %s\n", m_address.c_str(), m_port, m_socket.GetError().c_str());
+    m_socket.Close();
+
+    if (returnv != TIMEOUT)
+      USleep(10000000, &m_stop);
+
+    return false;
+  }
+  
+  return true;
+}
+
+bool CMpdClient::Ping()
+{
+  CTcpData data;
+  data.SetData("ping\n");
+
+  if (m_socket.Write(data) != SUCCESS)
+  {
+    printf("Error writing socket: %s\n", m_socket.GetError().c_str());
+    return false;
+  }
+
+  m_socket.SetTimeout(0);
+  int returnv;
+  while((returnv = m_socket.Read(data)) == SUCCESS);
+
+  m_socket.SetTimeout(10000000);
+
+  if (returnv == FAIL)
+  {
+    printf("Error reading socket: %s\n", m_socket.GetError().c_str());
+    return false;
+  }
+
+  return true;
 }
 
 bool CMpdClient::GetVolume(int& volume)
@@ -131,6 +170,8 @@ bool CMpdClient::GetVolume(int& volume)
       }
     }
   }
+
+  return false;
 }
 
 bool CMpdClient::SetVolume(int volume)

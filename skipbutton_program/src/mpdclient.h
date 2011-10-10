@@ -25,9 +25,13 @@ class CMpdClient : public CThread
     void         VolumeDown();
 
   private:
+    bool         OpenSocket();
+    bool         Ping();
     bool         GetVolume(int& volume);
     bool         SetVolume(int volume);
 
+    int              m_port;
+    std::string      m_address;
     CTcpClientSocket m_socket;
     std::deque<ECMD> m_commands;
     CCondition       m_condition;
