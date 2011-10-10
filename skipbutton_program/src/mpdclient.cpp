@@ -48,40 +48,9 @@ void CMpdClient::Process()
         lock.Enter();
       }
     }
+    lock.Leave();
 
-    bool failed = false;
-    while (!m_commands.empty())
-    {
-      ECMD cmd = m_commands.front();
-      m_commands.pop_front();
-      lock.Leave();
-
-      int volume;
-      if (!GetVolume(volume))
-      {
-        failed = true;
-        break;
-      }
-
-      int newvolume = volume;
-      if (cmd == CMD_VOLUP)
-        newvolume += 5;
-      else if (cmd == CMD_VOLDOWN)
-        newvolume -= 5;
-
-      newvolume = Clamp(newvolume, 0, 100);
-      printf("Setting volume from %i to %i\n", volume, newvolume);
-
-      if (!SetVolume(newvolume))
-      {
-        failed = true;
-        break;
-      }
-
-      lock.Enter();
-    }
-
-    if (failed)
+    if (!ProcessCommands())
     {
       m_socket.Close();
       lock.Enter();
@@ -106,6 +75,37 @@ bool CMpdClient::OpenSocket()
     return false;
   }
   
+  return true;
+}
+
+bool CMpdClient::ProcessCommands()
+{
+  CLock lock(m_condition);
+  while (!m_commands.empty())
+  {
+    ECMD cmd = m_commands.front();
+    m_commands.pop_front();
+    lock.Leave();
+
+    int volume;
+    if (!GetVolume(volume))
+      return false;
+
+    int newvolume = volume;
+    if (cmd == CMD_VOLUP)
+      newvolume += 5;
+    else if (cmd == CMD_VOLDOWN)
+      newvolume -= 5;
+
+    newvolume = Clamp(newvolume, 0, 100);
+    printf("Setting volume from %i to %i\n", volume, newvolume);
+
+    if (!SetVolume(newvolume))
+      return false;
+
+    lock.Enter();
+  }
+
   return true;
 }
 

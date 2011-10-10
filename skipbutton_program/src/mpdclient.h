@@ -27,6 +27,7 @@ class CMpdClient : public CThread
   private:
     bool         OpenSocket();
     bool         Ping();
+    bool         ProcessCommands();
     bool         GetVolume(int& volume);
     bool         SetVolume(int volume);
 
