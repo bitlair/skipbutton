@@ -92,7 +92,7 @@ void PrintHelp()
   "  -s <serialport>     device node of the serial port (mandatory)\n"
   "  -m <address>        address of the mpd server (optional, default is 127.0.0.1)\n"
   "  -p <port>           port of the mpd server (optional, default is 6600)\n"
-  "  -h                  print this message"
+  "  -h                  print this message\n"
   "\n"
   );
 }
