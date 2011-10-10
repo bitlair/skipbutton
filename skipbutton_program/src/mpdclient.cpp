@@ -26,10 +26,13 @@ void CMpdClient::Process()
 
   while(!m_stop)
   {
-    if (m_socket.IsOpen())
-      m_condition.Wait(10000000);
-    else
-      m_condition.Wait();
+    if (m_commands.empty())
+    {
+      if (m_socket.IsOpen())
+        m_condition.Wait(10000000);
+      else
+        m_condition.Wait();
+    }
 
     if (!m_commands.empty())
     {
