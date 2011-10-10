@@ -45,7 +45,6 @@ void CMpdClient::Process()
           m_socket.Close();
           continue;
         }
-        lock.Enter();
       }
     }
     lock.Leave();
