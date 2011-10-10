@@ -17,7 +17,7 @@ enum ECMD
 class CMpdClient : public CThread
 {
   public:
-    CMpdClient();
+    CMpdClient(std::string address, int port);
     ~CMpdClient();
 
     virtual void Process();

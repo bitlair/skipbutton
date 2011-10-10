@@ -9,11 +9,10 @@
 
 using namespace std;
 
-CMpdClient::CMpdClient()
+CMpdClient::CMpdClient(std::string address, int port)
 {
-  //TODO: make this configurable
-  m_port = 6600;
-  m_address = "192.168.88.10";
+  m_port = port;
+  m_address = address;
 }
 
 CMpdClient::~CMpdClient()
