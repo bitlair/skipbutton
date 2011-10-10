@@ -43,6 +43,8 @@ void CMpdClient::Process()
         if (!Ping())
         {
           m_socket.Close();
+          lock.Enter();
+          m_commands.clear();
           continue;
         }
       }
