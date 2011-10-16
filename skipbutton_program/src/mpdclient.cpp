@@ -187,6 +187,8 @@ bool CMpdClient::SetVolume(int volume)
     printf("Error writing socket: %s\n", m_socket.GetError().c_str());
     return false;
   }
+
+  return true;
 }
 
 void CMpdClient::VolumeUp()
