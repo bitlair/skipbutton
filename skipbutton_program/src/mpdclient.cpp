@@ -74,8 +74,11 @@ bool CMpdClient::OpenSocket()
 
     return false;
   }
-  
-  return true;
+  else
+  {
+    printf("Connected to %s:%i\n", m_address.c_str(), m_port);
+    return true;
+  }
 }
 
 bool CMpdClient::ProcessCommands()
