@@ -45,9 +45,9 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_skipbutton_OBJECTS = main.$(OBJEXT) msgparser.$(OBJEXT) \
-	mpdclient.$(OBJEXT) serialport.$(OBJEXT) misc.$(OBJEXT) \
-	timeutils.$(OBJEXT) tcpsocket.$(OBJEXT) thread.$(OBJEXT) \
-	mutex.$(OBJEXT) condition.$(OBJEXT)
+	mpdclient.$(OBJEXT) curlclient.$(OBJEXT) serialport.$(OBJEXT) \
+	misc.$(OBJEXT) timeutils.$(OBJEXT) tcpsocket.$(OBJEXT) \
+	thread.$(OBJEXT) mutex.$(OBJEXT) condition.$(OBJEXT)
 skipbutton_OBJECTS = $(am_skipbutton_OBJECTS)
 skipbutton_LDADD = $(LDADD)
 skipbutton_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
@@ -76,6 +76,10 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CC = @CC@
+CCDEPMODE = @CCDEPMODE@
+CFLAGS = @CFLAGS@
+CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
 CXXDEPMODE = @CXXDEPMODE@
@@ -86,7 +90,9 @@ DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -115,6 +121,7 @@ abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
+ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
@@ -158,6 +165,8 @@ skipbutton_SOURCES = main.cpp \
                      msgparser.h \
                      mpdclient.h \
                      mpdclient.cpp \
+                     curlclient.h \
+                     curlclient.cpp \
                      util/serialport.cpp \
                      util/serialport.h \
                      util/baudrate.h \
@@ -258,6 +267,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/condition.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/curlclient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/misc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpdclient.Po@am__quote@

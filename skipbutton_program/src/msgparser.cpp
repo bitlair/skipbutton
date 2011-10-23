@@ -1,8 +1,7 @@
 #include <cstdio>
-#include <cstdlib>
 #include "msgparser.h"
 
-CMsgParser::CMsgParser(CMpdClient& mpdclient): m_mpdclient(mpdclient)
+CMsgParser::CMsgParser(CMpdClient& mpdclient, CCurlClient& curlclient): m_mpdclient(mpdclient), m_curlclient(curlclient)
 {
   m_prev = -1;
 }
@@ -48,7 +47,7 @@ void CMsgParser::ProcessMsg()
     if (m_msg[1] == MSG_SKIP)
     {
       printf("skip\n");
-      system("curl -H \"Content-type:application/json\" -d '{\"action\":\"next\"}' http://192.168.88.10:5000/control");
+      m_curlclient.Skip();
     }
     else if (m_msg[1] == MSG_VOLUP)
     {

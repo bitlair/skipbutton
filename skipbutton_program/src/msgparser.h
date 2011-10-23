@@ -6,6 +6,7 @@
 #include <deque>
 
 #include "mpdclient.h"
+#include "curlclient.h"
 
 enum msgcode
 {
@@ -19,7 +20,7 @@ enum msgcode
 class CMsgParser
 {
   public:
-    CMsgParser(CMpdClient& mpdclient);
+    CMsgParser(CMpdClient& mpdclient, CCurlClient& curlclient);
     void AddData(uint8_t* data, int size);
 
   private:
@@ -28,7 +29,8 @@ class CMsgParser
 
     int m_prev;
     std::vector<uint8_t> m_msg;
-    CMpdClient& m_mpdclient;
+    CMpdClient&  m_mpdclient;
+    CCurlClient& m_curlclient;
 };
 
 #endif //MSGPARSER_H

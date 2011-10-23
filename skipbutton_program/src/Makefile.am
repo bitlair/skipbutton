@@ -5,6 +5,8 @@ skipbutton_SOURCES = main.cpp \
                      msgparser.h \
                      mpdclient.h \
                      mpdclient.cpp \
+                     curlclient.h \
+                     curlclient.cpp \
                      util/serialport.cpp \
                      util/serialport.h \
                      util/baudrate.h \

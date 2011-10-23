@@ -6,6 +6,7 @@
 #include "util/misc.h"
 #include "msgparser.h"
 #include "mpdclient.h"
+#include "curlclient.h"
 
 using namespace std;
 
@@ -57,17 +58,22 @@ int main (int argc, char *argv[])
   }
 
   CSerialPort port;
-  if (!port.Open(serialport, 600))
+  /*if (!port.Open(serialport, 600))
   {
     printf("Failed to open port: %s\n", port.GetError().c_str());
     return 1;
-  }
+  }*/
+
+  CMpdClient mpdclient(mpdaddress, mpdport);
+  mpdclient.StartThread();
+
+  CCurlClient curlclient;
+  curlclient.StartThread();
+
+  CMsgParser parser(mpdclient, curlclient);
 
   uint8_t in[1000];
   int size;
-  CMpdClient mpdclient(mpdaddress, mpdport);
-  mpdclient.StartThread();
-  CMsgParser parser(mpdclient);
   while(1)
   {
     if ((size = port.Read(in, sizeof(in), 10000000)) > 0)
@@ -80,6 +86,8 @@ int main (int argc, char *argv[])
       break;
     }
   }
+
+  curlclient.Stop();
 
   return 0;
 }
