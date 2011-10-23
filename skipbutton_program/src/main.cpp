@@ -58,11 +58,11 @@ int main (int argc, char *argv[])
   }
 
   CSerialPort port;
-  /*if (!port.Open(serialport, 600))
+  if (!port.Open(serialport, 600))
   {
     printf("Failed to open port: %s\n", port.GetError().c_str());
     return 1;
-  }*/
+  }
 
   CMpdClient mpdclient(mpdaddress, mpdport);
   mpdclient.StartThread();
