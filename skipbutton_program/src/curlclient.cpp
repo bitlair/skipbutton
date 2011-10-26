@@ -3,7 +3,7 @@
 
 #include <cstring>
 
-CCurlClient::CCurlClient()
+CCurlClient::CCurlClient(const char* url)
 {
   curl_global_init(CURL_GLOBAL_ALL);
 
@@ -16,7 +16,7 @@ CCurlClient::CCurlClient()
 
   curl_easy_setopt(m_handle, CURLOPT_HTTPHEADER, m_headers);
 
-  curl_easy_setopt(m_handle, CURLOPT_URL, "http://192.168.88.10:5000/control"); 
+  curl_easy_setopt(m_handle, CURLOPT_URL, url); 
 
   m_skipcount = 0;
 }

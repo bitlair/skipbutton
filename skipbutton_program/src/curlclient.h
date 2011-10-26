@@ -9,7 +9,7 @@
 class CCurlClient : public CThread
 {
   public:
-    CCurlClient();
+    CCurlClient(const char* url);
     ~CCurlClient();
 
     void Skip();

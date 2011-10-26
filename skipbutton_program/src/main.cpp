@@ -18,7 +18,8 @@ int main (int argc, char *argv[])
   const char* serialport = NULL;
   const char* mpdaddress = "127.0.0.1";
   int         mpdport    = 6600;
-  while ((c = getopt(argc, argv, "hm:p:s:")) != -1)
+  const char* fookeurl   = "http://127.0.0.1:5000/control";
+  while ((c = getopt(argc, argv, "hm:p:s:u:")) != -1)
   {
     if (c == 'h')
     {
@@ -41,6 +42,10 @@ int main (int argc, char *argv[])
     else if (c == 's')
     {
       serialport = optarg;
+    }
+    else if (c == 'u')
+    {
+      fookeurl = optarg;
     }
     else if (c == '?')
     {
@@ -67,7 +72,7 @@ int main (int argc, char *argv[])
   CMpdClient mpdclient(mpdaddress, mpdport);
   mpdclient.StartThread();
 
-  CCurlClient curlclient;
+  CCurlClient curlclient(fookeurl);
   curlclient.StartThread();
 
   CMsgParser parser(mpdclient, curlclient);
@@ -100,6 +105,8 @@ void PrintHelp()
   "  -s <serialport>     device node of the serial port (mandatory)\n"
   "  -m <address>        address of the mpd server (optional, default is 127.0.0.1)\n"
   "  -p <port>           port of the mpd server (optional, default is 6600)\n"
+  "  -u <fookebox url>   url of fookebox control\n"
+  "                      (optional, default is http://127.0.0.1:5000/control)\n"
   "  -h                  print this message\n"
   "\n"
   );
