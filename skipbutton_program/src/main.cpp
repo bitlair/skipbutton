@@ -19,7 +19,8 @@ int main (int argc, char *argv[])
   const char* mpdaddress = "127.0.0.1";
   int         mpdport    = 6600;
   const char* fookeurl   = "http://127.0.0.1:5000/control";
-  while ((c = getopt(argc, argv, "hm:p:s:u:")) != -1)
+  bool        bfork      = false;
+  while ((c = getopt(argc, argv, "hm:p:s:u:f")) != -1)
   {
     if (c == 'h')
     {
@@ -47,6 +48,10 @@ int main (int argc, char *argv[])
     {
       fookeurl = optarg;
     }
+    else if (c == 'f')
+    {
+      bfork = true;
+    }
     else if (c == '?')
     {
       printf("\n");
@@ -54,6 +59,9 @@ int main (int argc, char *argv[])
       return 1;
     }
   }
+
+  if (bfork && fork() != 0)
+    return 0;
 
   if (serialport == NULL)
   {
@@ -107,6 +115,7 @@ void PrintHelp()
   "  -p <port>           port of the mpd server (optional, default is 6600)\n"
   "  -u <fookebox url>   url of fookebox control\n"
   "                      (optional, default is http://127.0.0.1:5000/control)\n"
+  "  -f                  fork\n"
   "  -h                  print this message\n"
   "\n"
   );
