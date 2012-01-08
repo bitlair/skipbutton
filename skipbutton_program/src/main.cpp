@@ -15,12 +15,13 @@ void PrintHelp();
 int main (int argc, char *argv[])
 {
   int c;
-  const char* serialport = NULL;
-  const char* mpdaddress = "127.0.0.1";
-  int         mpdport    = 6600;
-  const char* fookeurl   = "http://127.0.0.1:5000/control";
-  bool        bfork      = false;
-  while ((c = getopt(argc, argv, "hm:p:s:u:f")) != -1)
+  const char* serialport  = NULL;
+  const char* mpdaddress  = "127.0.0.1";
+  int         mpdport     = 6600;
+  const char* fookeurl    = "http://127.0.0.1:5000/control";
+  bool        bfork       = false;
+  int         skiptimeout = 250000;
+  while ((c = getopt(argc, argv, "hm:p:s:u:ft:")) != -1)
   {
     if (c == 'h')
     {
@@ -51,6 +52,18 @@ int main (int argc, char *argv[])
     else if (c == 'f')
     {
       bfork = true;
+    }
+    else if (c == 't')
+    {
+      double fskiptimeout;
+      if (sscanf(optarg, "%lf", &fskiptimeout) != 1)
+      {
+        printf("Error: invalid skip timeout \"%s\"\n\n", optarg);
+        PrintHelp();
+        return 1;
+      }
+
+      skiptimeout = fskiptimeout * 1000000.0 + 0.5;
     }
     else if (c == '?')
     {
@@ -83,7 +96,7 @@ int main (int argc, char *argv[])
   CCurlClient curlclient(fookeurl);
   curlclient.StartThread();
 
-  CMsgParser parser(mpdclient, curlclient);
+  CMsgParser parser(mpdclient, curlclient, skiptimeout);
 
   uint8_t in[1000];
   int size;
@@ -116,6 +129,7 @@ void PrintHelp()
   "  -u <fookebox url>   url of fookebox control\n"
   "                      (optional, default is http://127.0.0.1:5000/control)\n"
   "  -f                  fork\n"
+  "  -t                  skip timeout in seconds, default is 0.25\n"
   "  -h                  print this message\n"
   "\n"
   );

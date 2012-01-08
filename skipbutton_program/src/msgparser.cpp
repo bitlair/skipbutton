@@ -1,9 +1,13 @@
 #include <cstdio>
 #include "msgparser.h"
+#include "util/timeutils.h"
 
-CMsgParser::CMsgParser(CMpdClient& mpdclient, CCurlClient& curlclient): m_mpdclient(mpdclient), m_curlclient(curlclient)
+CMsgParser::CMsgParser(CMpdClient& mpdclient, CCurlClient& curlclient, int skiptimeout):
+  m_mpdclient(mpdclient), m_curlclient(curlclient)
 {
   m_prev = -1;
+  m_skiptimeout = skiptimeout;
+  m_lastskiptime = GetTimeUs();
 }
 
 void CMsgParser::AddData(uint8_t* data, int size)
@@ -46,8 +50,17 @@ void CMsgParser::ProcessMsg()
   {
     if (m_msg[1] == MSG_SKIP)
     {
-      printf("skip\n");
-      m_curlclient.Skip();
+      int64_t now = GetTimeUs();
+      if (now - m_lastskiptime > m_skiptimeout)
+      {
+        printf("skip\n");
+        m_curlclient.Skip();
+      }
+      else
+      {
+        printf("skip pressed, not skipping, interval %i shorter than timeout %i\n", (int)(now - m_lastskiptime), m_skiptimeout);
+      }
+      m_lastskiptime = now;
     }
     else if (m_msg[1] == MSG_VOLUP)
     {

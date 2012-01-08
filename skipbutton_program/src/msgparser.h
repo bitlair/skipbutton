@@ -20,7 +20,7 @@ enum msgcode
 class CMsgParser
 {
   public:
-    CMsgParser(CMpdClient& mpdclient, CCurlClient& curlclient);
+    CMsgParser(CMpdClient& mpdclient, CCurlClient& curlclient, int skiptimeout);
     void AddData(uint8_t* data, int size);
 
   private:
@@ -28,6 +28,8 @@ class CMsgParser
     void ProcessMsg();
 
     int m_prev;
+    int m_skiptimeout;
+    int64_t m_lastskiptime;
     std::vector<uint8_t> m_msg;
     CMpdClient&  m_mpdclient;
     CCurlClient& m_curlclient;
