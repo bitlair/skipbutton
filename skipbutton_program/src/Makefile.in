@@ -50,8 +50,6 @@ am_skipbutton_OBJECTS = main.$(OBJEXT) msgparser.$(OBJEXT) \
 	thread.$(OBJEXT) mutex.$(OBJEXT) condition.$(OBJEXT)
 skipbutton_OBJECTS = $(am_skipbutton_OBJECTS)
 skipbutton_LDADD = $(LDADD)
-skipbutton_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(skipbutton_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -184,7 +182,6 @@ skipbutton_SOURCES = main.cpp \
                      util/condition.cpp \
                      util/lock.h
 
-skipbutton_LDFLAGS = -lrt -lpthread
 all: all-am
 
 .SUFFIXES:
@@ -258,7 +255,7 @@ clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 skipbutton$(EXEEXT): $(skipbutton_OBJECTS) $(skipbutton_DEPENDENCIES) 
 	@rm -f skipbutton$(EXEEXT)
-	$(skipbutton_LINK) $(skipbutton_OBJECTS) $(skipbutton_LDADD) $(LIBS)
+	$(CXXLINK) $(skipbutton_OBJECTS) $(skipbutton_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

@@ -23,5 +23,3 @@ skipbutton_SOURCES = main.cpp \
                      util/condition.h \
                      util/condition.cpp \
                      util/lock.h
-
-skipbutton_LDFLAGS = -lrt -lpthread
