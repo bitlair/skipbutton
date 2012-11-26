@@ -2,6 +2,10 @@
 #include <fcntl.h>
 #include <iostream>
 #include <string>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
 #include "util/serialport.h"
 #include "util/misc.h"
 #include "msgparser.h"
@@ -11,6 +15,7 @@
 using namespace std;
 
 void PrintHelp();
+void SigHandler(int signum);
 
 int main (int argc, char *argv[])
 {
@@ -21,7 +26,8 @@ int main (int argc, char *argv[])
   const char* fookeurl    = "http://127.0.0.1:5000/control";
   bool        bfork       = false;
   int         skiptimeout = 250000;
-  while ((c = getopt(argc, argv, "hm:p:s:u:ft:")) != -1)
+  const char* skipcmd     = NULL;
+  while ((c = getopt(argc, argv, "hm:p:s:u:ft:c:")) != -1)
   {
     if (c == 'h')
     {
@@ -65,6 +71,10 @@ int main (int argc, char *argv[])
 
       skiptimeout = fskiptimeout * 1000000.0 + 0.5;
     }
+    else if (c == 'c')
+    {
+      skipcmd = optarg;
+    }
     else if (c == '?')
     {
       printf("\n");
@@ -75,6 +85,8 @@ int main (int argc, char *argv[])
 
   if (bfork && fork() != 0)
     return 0;
+
+  signal(SIGCHLD, SigHandler);
 
   if (serialport == NULL)
   {
@@ -96,7 +108,7 @@ int main (int argc, char *argv[])
   CCurlClient curlclient(fookeurl);
   curlclient.StartThread();
 
-  CMsgParser parser(mpdclient, curlclient, skiptimeout);
+  CMsgParser parser(mpdclient, curlclient, skiptimeout, skipcmd);
 
   uint8_t in[1000];
   int size;
@@ -106,7 +118,7 @@ int main (int argc, char *argv[])
     {
       parser.AddData(in, size);
     }
-    else if (size < 0)
+    else if (size < 0 && errno != EINTR)
     {
       printf("Error reading port: %s\n", port.GetError().c_str());
       break;
@@ -131,7 +143,18 @@ void PrintHelp()
   "  -f                  fork\n"
   "  -t                  skip timeout in seconds, default is 0.25\n"
   "  -h                  print this message\n"
+  "  -c <command>        execute a shell command on skip\n"
   "\n"
   );
+}
+
+void SigHandler(int signum)
+{
+  if (signum == SIGCHLD)
+  {
+    printf("Waiting for child process to exit\n");
+    wait(NULL);
+    printf("Child process exited\n");
+  }
 }
 

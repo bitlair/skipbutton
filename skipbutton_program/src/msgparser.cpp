@@ -1,13 +1,18 @@
 #include <cstdio>
+#include <stdlib.h>
 #include "msgparser.h"
 #include "util/timeutils.h"
+#include "util/misc.h"
 
-CMsgParser::CMsgParser(CMpdClient& mpdclient, CCurlClient& curlclient, int skiptimeout):
+CMsgParser::CMsgParser(CMpdClient& mpdclient, CCurlClient& curlclient, int skiptimeout, const char* skipcmd):
   m_mpdclient(mpdclient), m_curlclient(curlclient)
 {
   m_prev = -1;
   m_skiptimeout = skiptimeout;
   m_lastskiptime = GetTimeUs();
+
+  if (skipcmd)
+    m_skipcmd = skipcmd;
 }
 
 void CMsgParser::AddData(uint8_t* data, int size)
@@ -55,6 +60,7 @@ void CMsgParser::ProcessMsg()
       {
         printf("skip\n");
         m_curlclient.Skip();
+        ExecSkipCmd();
       }
       else
       {
@@ -74,6 +80,22 @@ void CMsgParser::ProcessMsg()
     }
 
     m_msg.clear();
+  }
+}
+
+void CMsgParser::ExecSkipCmd()
+{
+  if (!m_skipcmd.empty())
+  {
+    if (fork() == 0)
+    {
+      printf("Executing \"%s\"\n", m_skipcmd.c_str());
+
+      if (system(m_skipcmd.c_str()) == -1)
+        printf("Error executing \"%s\": \"%s\"\n", m_skipcmd.c_str(), GetErrno().c_str());
+
+      exit(0);
+    }
   }
 }
 
